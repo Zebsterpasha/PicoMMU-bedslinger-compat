@@ -69,7 +69,7 @@ class PregateAutoLoad:
 
         while self.running:
             try:
-                # проверяем состояние принтера: если не в idle/ready/standby - не выполняем автозагрузку
+                # проверяем состояние принтера: если принтер печатает - не выполняем автозагрузку
                 try:
                     ps = self.printer.lookup_object("print_stats")
                     state = ps.get_status(self.reactor.monotonic()).get('state', '').lower()
@@ -82,9 +82,8 @@ class PregateAutoLoad:
                     else:
                         state = str(sm).lower()
 
-                # разрешаем автозагрузку только если принтер в покое
-                allowed_states = ("idle", "ready", "standby", "paused")
-                if state not in allowed_states:
+                # не разрешаем автозагрузку только если принтер печатает
+                if state == "printing":
                     time.sleep(self.poll_interval)
                     continue
 
